@@ -29,8 +29,6 @@ const storeData = async (username, data) => {
 // GitHub OAuth strategy
 passport.use(new GitHubStrategy(keys.github,
   (accessToken, refreshToken, profile, done) => {
-    // Handle user profile here (e.g., save to DB or session)
-
     profile.accessToken = accessToken;
     return done(null, profile);
   }
@@ -50,10 +48,6 @@ passport.use(new BitbucketStrategy({
     }
   )
 );
-
-// Serialize and deserialize user
-//passport.serializeUser((user, done) => done(null, user));
-//passport.deserializeUser((user, done) => done(null, user));
 
 passport.serializeUser((user, done) => {
   done(null, user);
@@ -132,7 +126,6 @@ router.get('/github/callback',
         res.redirect('http://localhost:5173/');
       }
 
-      //res.redirect(`http://localhost:5173/home?data=${(JSON.stringify(data))}&repo=${(JSON.stringify(repoMap))}`);
       // Send the user data and repositories to the frontend
     } catch (error) {
       console.error(error);
@@ -247,7 +240,6 @@ router.post('/update', async (req, res) => {
   try {
     const { userId, reposData } = req.body;  // Expecting userId and review data
 
-    // Reference to the user's document in Firestore
     const docRef = db.collection('users').doc(userId);
 
     // Update the review data

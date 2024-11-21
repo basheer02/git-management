@@ -9,15 +9,6 @@ require('dotenv').config();
 
 const sessionSecret = process.env.SESSION_SECRET;
 
-// Middleware for session management
-/*app.use(session({
-  secret: sessionSecret,
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false, maxAge: 3600000 }
-}));*/
-
-
 // Enable CORS (allow requests from your frontend)
 const corsOptions = {
     origin: 'http://localhost:5173',  // Allow your frontend's origin
