@@ -64,7 +64,7 @@ const fetch = require('node-fetch');
 
 // GitHub Callback
 router.get('/github/callback',
-  passport.authenticate('github', { failureRedirect: 'http://localhost:5173/' }),
+  passport.authenticate('github', { failureRedirect: '/auth/failure' }),
   async (req, res) => {
 
     const accessToken = req.user.accessToken;
@@ -120,7 +120,7 @@ router.get('/github/callback',
       if (result.success) {
         console.log(result.message);
         req.session.user = String(userData.id)
-        res.redirect('http://localhost:5173/home');
+        res.redirect('http://localhost:5173/home?name=Github');
       } else {
         console.log('Error storing data:', result.error);
         res.redirect('http://localhost:5173/');
@@ -139,7 +139,7 @@ router.get('/bitbucket', passport.authenticate('oauth2'));
 
 // GitLab Callback
 router.get('/bitbucket/callback',
-  passport.authenticate('oauth2', { failureRedirect: 'http://localhost:5173/' }),
+  passport.authenticate('oauth2', { failureRedirect: '/auth/failure' }),
   async (req, res) => {
 
     const accessToken = req.user.accessToken;
@@ -204,7 +204,7 @@ router.get('/bitbucket/callback',
       if (result.success) {
         console.log(result.message);
         req.session.user = userData.account_id
-        res.redirect('http://localhost:5173/home');
+        res.redirect('http://localhost:5173/home?name=BitBucket');
       } else {
         console.log('Error storing data:', result.error);
         res.redirect('http://localhost:5173/');
@@ -216,6 +216,12 @@ router.get('/bitbucket/callback',
     } // Redirect to frontend after login
   }
 );
+
+router.get('/failure', (req, res) => {
+  // Redirect to login with an error message
+  res.redirect('http://localhost:5173/?error=Authentication failed');
+});
+
 
 router.get('/getSession', async (req, res) => {
 

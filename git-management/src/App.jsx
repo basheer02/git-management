@@ -1,10 +1,33 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import './index.css'
+
+import { useLocation } from 'react-router-dom';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 
 function App() {
+
+  const location = useLocation();
+
+  useEffect(() => {
+    
+    const queryParams = new URLSearchParams(location.search);
+    const error = queryParams.get('error');
+
+    if(error) {
+      toast.error('Login failed...try again', {
+        position: 'bottom-center',
+        hideProgressBar: true,
+        closeButton: false,
+        theme: 'dark',                                                              
+        style: {
+            borderRadius: '10px',
+        },
+      })
+    }
+  }, [location]);
+    
 
   const handleLogin = (provider) => {
     toast.loading('redirecting...', {
