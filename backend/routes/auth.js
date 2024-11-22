@@ -120,7 +120,7 @@ router.get('/github/callback',
       if (result.success) {
         console.log(result.message);
         req.session.user = String(userData.id)
-        res.redirect('http://localhost:5173/home');
+        res.redirect('http://localhost:5173/home?name=Github');
       } else {
         console.log('Error storing data:', result.error);
         res.redirect('http://localhost:5173/');
@@ -204,7 +204,7 @@ router.get('/bitbucket/callback',
       if (result.success) {
         console.log(result.message);
         req.session.user = userData.account_id
-        res.redirect('http://localhost:5173/home');
+        res.redirect('http://localhost:5173/home?name=BitBucket');
       } else {
         console.log('Error storing data:', result.error);
         res.redirect('http://localhost:5173/');

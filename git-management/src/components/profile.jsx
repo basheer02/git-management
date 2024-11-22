@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react";
-
+import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 
@@ -15,6 +15,10 @@ export function Profile() {
 
     const [userData, setUserData] = useState(null);
     const [reposData, setReposData] = useState({});
+
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const name = queryParams.get('name');
     
       const handleToggle = (key) => {
         setReposData((prev) => ({
@@ -152,12 +156,13 @@ export function Profile() {
             <div className="w-screen h-screen bg-cover bg-center bg-gray-900"> {/* style={{ backgroundImage: "url('/bg.jpg')" }} */}
                 <div className='flex bg-gray-900 p-4 shadow-lg shadow-gray-400/50'>
                     <h1 className='p-2 text-2xl font-mono font-extrabold text-gray-300'>GIT MANAGEMENT</h1>
-                    <div className="fixed top-3 font-mono right-6 px-2">
+                    <div className="flex fixed top-3 font-mono right-6 px-2">
+                        <label className="font-mono top-3 p-4 text-gray-100 text-xl">{name}</label>
                         {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
                         <div
                           className="cursor-pointer flex items-center justify-center bg-gray-700 text-white rounded-full p-2 hover:bg-gray-600 transition-all"
                           onClick={handleClick}>
-                                <label className="m-2" id="username"/>
+                                <label className="m-2 font-mono" id="username"/>
                                 <FontAwesomeIcon icon={faUserCircle} className="text-2xl p-2" />
                         </div>
 
