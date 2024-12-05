@@ -5,7 +5,7 @@ const GitHubStrategy = require('passport-github2').Strategy;
 const BitbucketStrategy = require('passport-oauth2').Strategy;
 const keys = require('../config/keys');
 
-const { admin, db } = require('../firebase');
+const { db } = require('../firebase');
 
 
 const storeData = async (username, data) => {
@@ -30,6 +30,7 @@ const storeData = async (username, data) => {
 passport.use(new GitHubStrategy(keys.github,
   (accessToken, refreshToken, profile, done) => {
     profile.accessToken = accessToken;
+    //console.log('profile : ',profile)
     return done(null, profile);
   }
 ));
@@ -44,6 +45,7 @@ passport.use(new BitbucketStrategy({
     },
     (token, tokenSecret, profile, done) => {
       profile.accessToken = token;
+      //console.log('profile : ',profile)
       return done(null, profile);
     }
   )
@@ -70,16 +72,6 @@ router.get('/github/callback',
     const accessToken = req.user.accessToken;
 
     try {
-      // Fetch user data from GitHub API
-      const userResponse = await fetch('https://api.github.com/user', {
-        headers: {
-          // biome-ignore lint/complexity/useLiteralKeys: <explanation>
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
-
-      const userData = await userResponse.json();
-
       const emailResponse = await fetch('https://api.github.com/user/emails', {
         headers: {
           // biome-ignore lint/complexity/useLiteralKeys: <explanation>
@@ -103,33 +95,32 @@ router.get('/github/callback',
       const reposData = await reposResponse.json();
 
       const repoMap = reposData.reduce((acc, repo) => {
-        acc[repo.full_name] = false; // Use id as the key and name as the value
+        acc[repo.full_name] = false; 
         return acc;
       }, {});
 
 
       const data = {
-        username: userData.login,
-        name : userData.name,
+        username: req.user.username,
+        name : req.user.displayName,
         email : primaryEmail,
         repo: repoMap
       }
 
-      const result = await storeData(String(userData.id), data);
+      const result = await storeData(req.user.id, data);
       
       if (result.success) {
         console.log(result.message);
-        req.session.user = String(userData.id)
+        req.session.user = req.user.id
         res.redirect('http://localhost:5173/home?name=Github');
       } else {
         console.log('Error storing data:', result.error);
-        res.redirect('http://localhost:5173/');
+        res.redirect('/auth/failure');
       }
-
-      // Send the user data and repositories to the frontend
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Failed to fetch data from GitHub' });
+      res.redirect('/auth/failure');
+     // res.status(500).json({ error: 'Failed to fetch data from GitHub' });
     }
   }
 );
@@ -188,8 +179,6 @@ router.get('/bitbucket/callback',
         repoMap[repo.repository.full_name] = false;
       });
 
-      //console.log(reposData.workspace)
-
 
       const data = {
         username: userData.username,
@@ -197,7 +186,7 @@ router.get('/bitbucket/callback',
         email: email,
         repo: repoMap
       }
-      console.log(data)
+      //console.log(data)
 
       const result = await storeData(userData.account_id, data);
       
@@ -207,13 +196,13 @@ router.get('/bitbucket/callback',
         res.redirect('http://localhost:5173/home?name=BitBucket');
       } else {
         console.log('Error storing data:', result.error);
-        res.redirect('http://localhost:5173/');
+        res.redirect('/auth/failure');
       }
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: 'Failed to fetch data from GitHub' });
-      res.redirect('http://localhost:5173/'); // Redirect to frontend after login
-    } // Redirect to frontend after login
+      //res.status(500).json({ error: 'Failed to fetch data from GitHub' });
+      res.redirect('/auth/failure'); 
+    } 
   }
 );
 
@@ -238,6 +227,7 @@ router.get('/getSession', async (req, res) => {
     }
   } catch(error) {
     console.error('Error retrieving session data:', error);
+    res.status(500).send('Error retrieving session data:');
   }
 })
 
